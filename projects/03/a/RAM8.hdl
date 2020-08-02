@@ -16,4 +16,34 @@ CHIP RAM8 {
 
     PARTS:
     // Put your code here:
+
+    DMux8Way(in = load, sel = address, a = load1, b = load2, c = load3, d = load4, e = load5, f = load6, g = load7, h = load8);
+    // After this operation, only one 'load' is the real 'load'(maybe 1 or 0), while others are all 0.
+    Register(in = in, load = load1, out = out1);
+    Register(in = in, load = load2, out = out2);
+    Register(in = in, load = load3, out = out3);
+    Register(in = in, load = load4, out = out4);
+    Register(in = in, load = load5, out = out5);
+    Register(in = in, load = load6, out = out6);
+    Register(in = in, load = load7, out = out7);
+    Register(in = in, load = load8, out = out8);
+    Mux8Way16(a = out1, b = out2, c = out3, d = out4, e = out5, f = out6, g = out7, h = out8, sel = address, out = out);
 }
+
+// I found this chip difficult, so I refer to the forum.
+// The link of the post is: http://nand2tetris-questions-and-answers-forum.32033.n3.nabble.com/Do-I-need-an-8way-16-Dmux-for-the-RAM8-td917724.html#a4029324
+/* The post said(by Thorvald):
+"I had this same idea but then to find out that using the standard DMux8Way is enough, 
+just put as an input the load instruction and sel=address, 
+outputs of this things are going to be the loads of the chips, 
+but also its ids (this is very important).
+
+Then, just fed every register as:
+
+Register(in=in, load=idj, out=outj);
+
+Yes, I am forcing that each register accepts the in, 
+but at the end it doesn't matter because the load operation only depends on the parameter idj, 
+which is 1 if has the correct output from DMux8Way.
+
+If nothing is loaded, then you do not alter your j-register ." */

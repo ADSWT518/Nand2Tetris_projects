@@ -15,4 +15,8 @@ CHIP Bit {
 
     PARTS:
     // Put your code here:
+    Mux(a = outPrev, b = in, sel = load, out = MuxOut);// mind the order of 'a' and 'b'
+    DFF(in = MuxOut, out = out, out = outPrev);// use another variable ('outPrev') instead of 'out' to store the value for 'Mux' operation
 }
+
+// Reference: http://nand2tetris-questions-and-answers-forum.32033.n3.nabble.com/BIT-CHIP-td4032411.html

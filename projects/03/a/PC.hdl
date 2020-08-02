@@ -17,4 +17,20 @@ CHIP PC {
 
     PARTS:
     // Put your code here:
+    
+    Mux16(a = outPrev, b = false, sel = reset, out = out1);// first if-else
+
+    Not(in = reset, out = resetNot);
+    And(a = resetNot, b = load, out = load1);
+    Mux16(a = out1, b = in, sel = load1, out = out2);// second if-else
+
+    Not(in = load, out = loadNot);
+    And(a = resetNot, b = loadNot, out = doubleNot);
+    And(a = doubleNot, b = inc, out = inc1);
+    Inc16(in = outPrev, out = outPlus1);
+    Mux16(a = out2, b = outPlus1, sel = inc1, out = out3);// third if-else
+
+    Register(in = out3, load = true, out = out, out = outPrev);// 'outPrev' is very important!!!
 }
+
+// Reference: http://nand2tetris-questions-and-answers-forum.32033.n3.nabble.com/PC-Hdl-td4026543.html

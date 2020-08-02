@@ -63,3 +63,6 @@ CHIP ALU {
    Mux16(a = out0, b = Notout, sel = no, out = out);
 
 }
+
+// Reference: http://nand2tetris-questions-and-answers-forum.32033.n3.nabble.com/ZR-and-NG-using-16wayOR-gate-td4034824.html
+//            http://nand2tetris-questions-and-answers-forum.32033.n3.nabble.com/Sub-bus-of-an-internal-node-may-not-be-used-td4031198.html
