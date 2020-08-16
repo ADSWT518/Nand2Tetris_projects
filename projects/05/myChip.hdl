@@ -1,0 +1,12 @@
+CHIP myChip {
+    IN  a, b, c, d, e, f, g, h;
+    OUT out;
+    PARTS:
+    Or(a = a, b = b, out = temp1);
+    Or(a = temp1, b = c, out = temp2);
+    Or(a = temp2, b = d, out = temp3);
+    Or(a = temp3, b = e, out = temp4);
+    Or(a = temp4, b = f, out = temp5);
+    Or(a = temp5, b = g, out = temp6);
+    And(a = temp6, b = h, out = out);
+}

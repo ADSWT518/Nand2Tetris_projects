@@ -40,4 +40,53 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+
+    // Mind that the rightmost bit of 'instruction' is instruction[0]!!!
+    // About C-instrucion:
+    // instruction[0..2]    Jump
+    // instruction[3]       load to Memory
+    // instruction[4]       load to D register
+    // instruction[5]       load to A register
+    // instruction[6..11]   control bits of ALU
+    // instruction[12]      control bit of the 2nd Mux
+    // instruction[13..14]  nothing
+    // instruction[15]      OP code
+
+    
+    // first Mux and A Register
+    Mux16(a = instruction, b = ALUoutput, sel = instruction[15], out = Ainput);
+    Not(in = instruction[15], out = NotOPcode);
+
+    And(a = instruction[15], b = instruction[5], out = Aload0);    
+    Or(a = Aload0, b = NotOPcode, out = Aload); // get the condition for loading to A register 
+    And(a = instruction[15], b = instruction[4], out = Dload); // get the condition for loading to D register 
+    And(a = instruction[15], b = instruction[3], out = writeM); // get the condition for writing to Memory 
+
+    ARegister(in = Ainput, load = Aload, out = Aoutput, out[15] = OPCode, out[0..14] = addressM);
+    Mux16(a = Aoutput, b = inM, sel = instruction[12], out = ALUinput2);
+
+    DRegister(in = ALUoutput, load = Dload, out = Doutput); // Doutput is ALUinput1
+    ALU(x = Doutput, y = ALUinput2, zx = instruction[11], nx = instruction[10], zy = instruction[9], ny = instruction[8], f = instruction[7], no = instruction[6], out = ALUoutput, out = outM, zr = zr, ng = ng);
+
+    // Program Counter
+    DMux8Way(in = instruction[15], sel = instruction[0..2], a = NULL, b = JGT, c = JEQ, d = JGE, e = JLT, f = JNE, g = JLE, h = JMP);
+    And(a = zr, b = JEQ, out = PCload1); // == 0
+        Not(in = zr, out = Notzr);
+        Not(in = ng, out = Notng);
+        Or(a = zr, b = ng, out = LessOrEq);
+        And(a = Notzr, b = Notng, out = Greater);
+    And(a = Notzr, b = JNE, out = PCload2); // != 0
+    And(a = ng, b = JLT, out = PCload3); // < 0
+    And(a = Notng, b = JGE, out = PCload4); // >= 0
+    And(a = LessOrEq, b = JLE, out = PCload5); // <= 0
+    And(a = Greater, b = JGT, out = PCload6); // > 0
+    Not(in = NULL, out = NotNULL);
+    myChip(a = PCload1, b = PCload2, c = PCload3, d = PCload4, e = PCload5, f = PCload6, g = JMP, h = NotNULL, out = PCload);
+    // 'myChip' is a self-made Chip to output a || b || c || d || e || f || g & h
+    Not(in = PCload, out = PCinc);
+    
+
+    PC(in = Aoutput, load = PCload, inc = PCinc, reset = reset, out[0..14] = pc, out[15] = OPCode2);
 }
+
+//Reference: http://nand2tetris-questions-and-answers-forum.32033.n3.nabble.com/Computer-hdl-question-td4031948.html
